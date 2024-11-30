@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.env.model.mapper.NearInfoMapper">
+	<!-- registInfo -->
+	<insert id="registInfo" parameterType="java.util.List"> INSERT INTO info
+		(largeCity, district, majorCategory, middleCategory, minorCategory,
+		count) VALUES <foreach collection="nearInfoList" item="nearInfo"
+			separator=",">
+			(#{nearInfo.largeCity}, #{nearInfo.district},
+		#{nearInfo.majorCategory},
+			#{nearInfo.middleCategory}, #{nearInfo.minorCategory},
+		#{nearInfo.count})
+		</foreach>
+	</insert>
+
+	<!-- getAllInfo -->
+	<select id="getAllInfo" resultType="nearInfoDto">
+		SELECT * FROM info
+	</select>
+
+	<!-- getInfoByDistrict -->
+	<select id="getInfoByDistrict" parameterType="string"
+		resultType="nearInfoDto">
+		SELECT * FROM info
+		WHERE district = #{district}
+	</select>
+</mapper>

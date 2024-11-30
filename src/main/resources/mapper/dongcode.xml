@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.apt.model.mapper.DongcodeMapper">
+	<select id="findDongcodeByAddress" parameterType="string"
+		resultType="string">
+		SELECT dong_code
+		FROM dongcodes
+		WHERE gugun_name LIKE #{address}
+	</select>
+	<select id="findDongcodeByName" parameterType="string"
+		resultType="string">
+		SELECT dong_code 
+		FROM dongcodes
+		WHERE sido_name = #{sido_name}
+		  AND gugun_name = #{gugun_name}
+		  AND dong_name = #{dong_name};
+	</select>
+</mapper>

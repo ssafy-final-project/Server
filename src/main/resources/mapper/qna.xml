@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.qna.model.mapper.QnaMapper">
+	<cache/>
+	<!-- RESULT MAP -->
+	<resultMap type="questionDto" id="question">
+	    <id property="questionId" column="q_question_id" />
+	    <result property="category" column="q_category" />
+	    <result property="author" column="q_author" />
+	    <result property="title" column="q_title" />
+	    <result property="content" column="q_content" />
+	    <result property="createdAt" column="q_created_at" />
+	    <result property="isResolved" column="q_is_resolved" />
+	    <collection property="answers" ofType="answerDto">
+	        <id property="questionId" column="a_question_id" />
+	        <id property="answerId" column="a_answer_id" />
+	        <result property="content" column="a_content" />
+	        <result property="author" column="a_author" />
+	        <result property="createdAt" column="a_created_at" />
+	    </collection>
+	</resultMap>
+	
+	<resultMap type="questionDto" id="question2">
+		<id property="questionId" column="question_id"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="isResolved" column="is_resolved"/>
+	</resultMap>
+	
+	<resultMap type="answerDto" id="answer">
+		<id property="questionId" column="question_id"/>
+		<result property="answerId" column="answer_id"/>
+		<result property="createdAt" column="created_at"/>
+	</resultMap>
+	
+	<!-- POST -->
+	<insert id="registQuestion" parameterType="questionDto">
+		INSERT INTO questions(category, author, title, content)
+		VALUES (#{category}, #{author}, #{title}, #{content})
+	</insert>
+	
+	<insert id="registAnswer" parameterType="answerDto" keyProperty="questionId" keyColumn="question_id">
+		INSERT INTO answers(question_id, content, author)
+		VALUES (#{questionId}, #{content}, #{author})
+	</insert>
+	
+	<!-- PUT -->
+	<update id="updateQuestion" parameterType="questionDto">
+		UPDATE questions
+		SET title = #{title}, content = #{content}, category = #{category}
+		WHERE question_id = #{questionId}
+	</update>
+	
+	<update id="updateAnswer" parameterType="answerDto">
+		UPDATE answers
+		SET content = #{content}
+		WHERE (question_id, answer_id) = (#{questionId}, #{answerId})
+	</update>
+	
+	<update id="toggleQuestionResolved" parameterType="int">
+		UPDATE questions
+		SET is_resolved = 1 - is_resolved
+		WHERE question_id = #{questionId}
+	</update>
+	
+	<!-- DELETE -->
+	<delete id="deleteQuestion" parameterType="int">
+		DELETE FROM questions 
+		WHERE question_id = #{question_id}
+	</delete>
+	
+	<delete id="deleteAnswer" parameterType="map">
+		DELETE FROM answers 
+		WHERE (question_id, answer_id) = (#{question_id}, #{answer_id})
+	</delete>
+
+	
+	<!-- GET -->
+	<select id="selectQuestion" parameterType="int" resultMap="question">
+		SELECT 
+		    q.question_id AS q_question_id,
+		    q.category AS q_category,
+		    q.author AS q_author,
+		    q.title AS q_title,
+		    q.content AS q_content,
+		    q.created_at AS q_created_at,
+		    a.question_id AS a_question_id,
+		    a.answer_id AS a_answer_id,
+		    a.content AS a_content,
+		    a.author AS a_author,
+		    a.created_at AS a_created_at
+		FROM 
+		    questions q
+		LEFT JOIN 
+		    answers a ON q.question_id = a.question_id
+		WHERE 
+		    q.question_id = #{questionId}
+	</select>
+	
+	<select id="selectAnswer" parameterType="int" resultMap="answer">
+		select * 
+		from answers
+		where question_id = #{question_id}
+	</select>
+	
+	<!-- GET LIST -->
+	<select id="getQuestionPage" parameterType="map" resultMap="question">
+	    SELECT 
+	        question_id AS q_question_id,
+	        category AS q_category,
+	        author AS q_author,
+	        title AS q_title,
+	        content AS q_content,
+	        created_at AS q_created_at,
+	        is_resolved As q_is_resolved
+		FROM questions 
+		ORDER BY question_id desc 
+		LIMIT #{from}, #{amount}
+	</select>
+	
+	<select id="getQuestionPageById" parameterType="string" resultMap="question2">
+		SELECT *
+		FROM questions
+		where author = #{userId} 
+		ORDER BY question_id desc
+	</select>
+	
+	<!-- GET COUNT -->
+	<select id="getQuestionCount" resultType="int">
+		SELECT COUNT(*) as CNT FROM questions
+	</select>
+</mapper>

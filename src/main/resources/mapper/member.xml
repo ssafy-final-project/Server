@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.member.model.mapper.MemberMapper">
+	<resultMap type="memberDto" id="member">
+		<id property="id" column="id"/>
+		<collection property="favorites" column="id" ofType="dongcodeDto" select="selectFavorites"/>
+	</resultMap>
+	
+	<!-- selectFavorites -->
+	<select id="selectFavorites" resultType="dongcodeDto">
+		select *
+		from favorites join dongcodes using(dong_code)
+		where user_id = #{id}
+	</select>
+	
+	<!-- registerUser -->
+	<insert id="registerUser" parameterType="memberDto">
+		INSERT INTO members VALUES 
+		(#{id}, #{pw}, #{name}, #{address}, #{phone}, #{salt})
+	</insert>
+	
+	<!-- updateUser -->
+	<update id="updateUser" parameterType="memberDto">
+		UPDATE members 
+		SET name = #{name}, address = #{address}, phone = #{phone} 
+		where id = #{id}
+	</update>
+	
+	<!-- deleteUser -->
+	<delete id="deleteUser" parameterType="string">
+		DELETE FROM members WHERE id = #{id}
+	</delete>
+	
+	<!-- selectUser -->
+	<select id="selectUser" parameterType="string" resultMap="member">
+		select * from members
+		<where>
+			and id = #{id}
+		</where>
+	</select>
+	
+	<!-- selectUserAll -->
+	<select id="selectUserAll" resultMap="member">
+		select * from members
+	</select>
+	
+	<!-- getFavorites -->
+	<select id="getFavorites" resultType="dongcodeDto">
+		select *
+		from members join favorites
+		on members.id = favorites.user_id
+		join dongcodes using(dong_code)
+		where id = #{userId}
+	</select>
+	
+	<!-- addFavorite -->
+	<insert id="addFavorite" parameterType="map">
+		INSERT INTO favorites (user_id, dong_code) 
+		VALUES (#{userId}, #{districtCode})
+	</insert>
+	
+	<!-- removeFavorite -->
+	<delete id="removeFavorite" parameterType="map">
+		delete from favorites
+		where user_id = #{userId}
+		and dong_code = #{districtCode}
+	</delete>
+	
+	<!-- findPw -->
+	<select id="findPw" parameterType="map" resultType="string">
+		select pw
+		from members
+		where id = #{userId}
+		and phone = #{phone}
+	</select>
+	
+</mapper>

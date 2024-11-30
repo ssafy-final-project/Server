@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.apt.model.mapper.AptDealMapper">
+	<cache/>
+	<!-- 
+		쿼리가 결국 aptDto를 리턴하고,
+		그 안에 deals(aptDealDto)를 필드로 가지기때문에
+		resultMap을 정의하고 collection을 통해 필드 데이터를 주입함
+	 -->
+	<resultMap type="aptDto" id="apt">
+		<id property="apt_seq" column="apt_seq" />
+		<result property="apt_name" column="apt_nm" />
+		<result property="build_year" column="build_year" />
+		<result property="district_code" column="road_nm_sgg_cd" />
+		<result property="full_code" column="dong_code" />
+		<result property="doro_juso" column="doro_juso" />
+		<result property="juso" column="juso" />
+		<result property="latitude" column="latitude" />
+		<result property="longitude" column="longitude" />
+		<collection property="deals" ofType="aptDealDto">
+			<id property="no" column="no" />
+			<result property="apt_dong" column="apt_dong" />
+			<result property="floor" column="floor" />
+			<result property="deal_year" column="deal_year" />
+			<result property="deal_month" column="deal_month" />
+			<result property="deal_day" column="deal_day" />
+			<result property="exclu_use_ar" column="exclu_use_ar" />
+			<result property="deal_price" column="deal_price" />
+			<!-- 나머지 필드들은 DB 컬럼과 동일 -->
+		</collection>
+	</resultMap>
+	
+	<select id="getAptDataBySeq" parameterType="string" resultMap="apt">
+	    SELECT a.apt_seq, a.apt_nm, a.build_year, a.road_nm_sgg_cd, a.dong_code,
+	           a.doro_juso, a.juso, a.latitude, a.longitude,
+	           d.no, d.apt_dong, d.floor, d.deal_year, d.deal_month, d.deal_day, 
+	           d.exclu_use_ar, d.deal_price
+	    FROM houseinfos a
+	    LEFT JOIN housedeals d ON a.apt_seq = d.apt_seq
+	    WHERE a.apt_seq = #{apt_seq}
+	</select>
+
+	<!-- getDealDataAll -->
+	<select id="getDealDataAll" parameterType="string" resultType="aptDealDto">
+		SELECT * 
+		FROM housedeals 
+		WHERE apt_seq = #{apt_seq}
+		ORDER BY deal_year desc, deal_month desc, deal_day desc
+	</select>
+
+	<!-- getDealDataByCond -->
+	<!-- 여기서 조인해서 다 가져오면 될거같은데, where문으로 자르니까 괜찮지않을까? -->
+	<select id="getDealDataByCond" resultMap="apt" useCache="true">
+		select * 
+		from houseinfos join housedeals
+		using(apt_seq)
+		<include refid="search"/>
+	</select>
+
+	<!-- 위에걸로 해결될듯  -->
+	<!-- 가격 혹은 구역 기반으로 필터링 조건 -->
+	<sql id="search">
+		<where>
+			<if test="low != null and low != ''">
+				and deal_price between #{low} and #{high}
+			</if>
+			<if test="district_code != null and district_code != ''">
+				and apt_seq like concat(#{district_code}, '%')
+			</if>
+			<if test="year != null and year != ''">
+				and deal_year = #{year}
+			</if>
+		</where>
+	</sql>
+
+</mapper>

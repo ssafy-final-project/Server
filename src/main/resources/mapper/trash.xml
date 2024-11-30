@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.env.model.mapper.TrashMapper">
+	<cache/>
+	
+	<resultMap type="trashDto" id="trash">
+		<id property="id" column="id" />
+		<id property="type" column="type" />
+		<result property="bagType" column="bag_type" />
+		<result property="disposalMethod" column="disposal_method" />
+		<result property="managingDepartment" column="managing_Department" />
+		<result property="departmentPhone" column="department_phone" />
+	</resultMap>
+
+	<!-- getTrashInfo -->
+	<select id="getTrashInfo" parameterType="string" resultMap="trash">
+		select *
+		from wastebag join wastebagdesc
+		using(id)
+		where dongcode like concat(#{dongcode}, '%')
+		order by bag_type, target, `usage`, disposal_method, price;
+	</select>
+</mapper>

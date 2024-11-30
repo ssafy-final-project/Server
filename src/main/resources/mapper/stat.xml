@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.apt.model.mapper.StatMapper">
+	<cache/>
+
+	<resultMap type="gugunStatDto" id="gugunstat">
+		<id column="dong_code" property="dongCode"/>
+		<result column="avg_price" property="avgPrice"/>
+		<result column="latitude" property="latitude"/>
+		<result column="longitude" property="longitude"/>
+		<result column="stat_name" property="statName"/>
+	</resultMap>
+	<resultMap type="dongStatDto" id="dongstat">
+		<id column="dong_code" property="dongCode"/>
+		<result column="min_price" property="minPrice"/>
+		<result column="max_price" property="maxPrice"/>
+		<result column="avg_price" property="avgPrice"/>
+		<result column="deal_count" property="dealCount"/>
+		<result column="latitude" property="latitude"/>
+		<result column="longitude" property="longitude"/>
+		<result column="super_name" property="superName"/>
+		<result column="stat_name" property="statName"/>
+	</resultMap>
+	<resultMap type="aptStatDto" id="aptstat">
+		<id column="apt_seq" property="aptSeq"/>
+		<result column="min_price" property="minPrice"/>
+		<result column="max_price" property="maxPrice"/>
+		<result column="avg_price" property="avgPrice"/>
+		<result column="recent_year" property="recentYear"/>
+		<result column="recent_month" property="recentMonth"/>
+		<result column="recent_day" property="recentDay"/>
+		<result column="deal_count" property="dealCount"/>
+		<result column="latitude" property="latitude"/>
+		<result column="longitude" property="longitude"/>
+	</resultMap>
+	<resultMap type="aptDto" id="aptInfo">
+		<id column="apt_seq" property="apt_seq"/>
+		<result column="apt_name" property="apt_nm"/>
+		<result column="district_code" property="dong_code"/>
+	</resultMap>
+
+	<select id="getGugunAll" resultMap="gugunstat">
+		SELECT *
+		FROM gugunstat
+	</select>
+	<select id="getDongStatAll" resultMap="dongstat" useCache="true">
+		SELECT *
+		FROM dongstat
+	</select>
+	<select id="getDongStatByGugun" parameterType="String" resultMap="dongstat">
+		SELECT *
+		FROM dongstat
+		WHERE dong_code LIKE concat(#{shortDongcode}, '%')
+	</select>
+	<select id="getAptStatByDong" parameterType="String" resultMap="aptstat">
+		SELECT *
+		FROM aptstat
+		WHERE apt_seq LIKE concat(#{shortDongcode}, '%')
+	</select>
+	<select id="getAptStat" parameterType="String" resultMap="aptstat">
+		SELECT *
+		FROM aptstat
+		WHERE apt_seq = #{aptSeq}
+	</select>
+	<select id="getAptInfoAll" resultMap="aptInfo">
+		SELECT *
+		FROM houseinfos
+	</select>
+	
+	<insert id="logRegionalQuery" parameterType="string">
+	    INSERT INTO query_regional (region_name, query_count)
+	    SELECT sido_name, 1
+	    FROM dongcodes
+	    WHERE CONCAT(LEFT(#{dongcode}, 2), '00000000') = dong_code
+	    ON DUPLICATE KEY UPDATE query_count = query_count + 1;
+	</insert>
+</mapper>

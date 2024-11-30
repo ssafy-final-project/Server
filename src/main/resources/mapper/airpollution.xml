@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.env.model.mapper.AirPollutionMapper">
+	<cache/>
+	
+	<!-- registInfo -->
+	<insert id="registInfo" parameterType="java.util.List"> INSERT INTO
+		PollutionInfo (locCode, locOfficial, locAddress, locName, displayNo,
+		dongcode) VALUES <foreach collection="infoList" item="pollutionInfo"
+			separator=",">
+			(#{pollutionInfo.locCode}, #{pollutionInfo.locOfficial},
+		#{pollutionInfo.locAddress}, #{pollutionInfo.locName},
+		#{pollutionInfo.displayNo}, #{pollutionInfo.dongcode})
+		</foreach>
+	</insert>
+
+	<!-- getPoulltionInfo -->
+	<select id="getPollutionInfo" parameterType="map"
+		resultType="airPollutionDto"> SELECT * FROM pollutioninfo <include
+			refid="search" />
+	</select>
+
+	<sql id="search">
+		<where>
+			<if test="location != null and location != ''">
+				and locAddress like concat('%', #{location}, '%')
+			</if>
+			<if test="dongcode != null and dongcode != ''">
+				and dongcode like concat(#{dongcode}, '%')
+			</if>
+		</where>
+	</sql>
+</mapper>

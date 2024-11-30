@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.route.model.mapper.RouteMapper">
+	<cache/>
+	
+	<resultMap type="routeDto" id="route">
+		<id property="nodeFrom" column="node_from"/>
+		<id property="nodeTo" column="node_to"/>
+		<id property="durationWeight" column="duration_weight"/>
+	</resultMap>
+	
+	
+	<select id="getRouteAll" resultMap="route">
+		SELECT *
+		FROM graphs;
+	</select>
+</mapper>
